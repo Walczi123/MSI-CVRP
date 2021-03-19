@@ -7,17 +7,17 @@ class Graph:
         self.vertices = None
         self.__edges__ = None
         self.demand = None
-        self.__feromones__ = None
+        self.__pheromones__ = None
         self.capacity_limit = None
         self.optimal_value = None
 
-    def feromones(self, x=None, y=None):
+    def pheromones(self, x=None, y=None):
         if x is None and y is None:
-            return self.__feromones__
-        return self.__feromones__[min(x, y), max(x, y)]
+            return self.__pheromones__
+        return self.__pheromones__[min(x, y), max(x, y)]
 
-    def set_feromones(self, value):
-        self.__feromones__ = value
+    def set_pheromones(self, value):
+        self.__pheromones__ = value
 
     def edges(self, x, y):
         return self.__edges__[min(x, y), max(x, y)]
@@ -51,8 +51,8 @@ class Graph:
 
         self.__edges__ = {(min(a, b), max(a, b)): np.sqrt((graph[a][0]-graph[b][0])**2 + (
             graph[a][1]-graph[b][1])**2) for a in graph.keys() for b in graph.keys()}
-        self.__feromones__ = {(min(a, b), max(a, b)): 1 for a in graph.keys()
-                              for b in graph.keys() if a != b}
+        self.__pheromones__ = {(min(a, b), max(a, b)): 1 for a in graph.keys()
+                               for b in graph.keys() if a != b}
 
         return self.vertices, self.__edges__, self.capacity_limit, self.demand, \
-            self.__feromones__, self.optimal_value
+            self.__pheromones__, self.optimal_value
