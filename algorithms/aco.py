@@ -1,4 +1,4 @@
-from graph import Graph
+from data.graph import Graph
 import numpy as np
 import copy
 
@@ -86,9 +86,9 @@ class ACO:
                     solutions.append(solution)
                     self.check_solution(solution)
             self.update_pheromone(solutions)
-            print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
-                  "\t"+str(self.graph.optimal_value))
-        return self.best_solution
+            yield (str(i+1)+":\t"+str(int(self.best_solution[1])) +
+                   "\t"+str(self.graph.optimal_value))
+        yield str(self.best_solution)
 
 
 if __name__ == "__main__":
