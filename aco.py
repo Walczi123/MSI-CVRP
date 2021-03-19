@@ -1,7 +1,6 @@
 from graph import Graph
 import numpy as np
 import copy
-from collections import defaultdict
 
 
 class ACO:
@@ -16,7 +15,7 @@ class ACO:
         self.best_solution = None                   # best solutionalfa
         self.alfa = alfa                            # alfa parameter
         self.beta = beta                            # beta parameter
-        self.ro = ro                        # ro parameter
+        self.ro = ro                                # ro parameter
         self.th = th                                # th parameter
         if seed != 0:
             np.random.seed(seed)                    # set seed
@@ -47,7 +46,7 @@ class ACO:
                 else:
                     break
             solution.append(path)
-        return solution
+        return solution, self.rate_solution(solution)
 
     def rate_solution(self, solution):
         s = 0
@@ -82,10 +81,10 @@ class ACO:
         for i in range(self.iterations):
             solutions = []
             for _ in range(self.n_ants):
-                s = self.find_solution()
-                solution = (s, self.rate_solution(s))
-                solutions.append(solution)
-                self.check_solution(solution)
+                solution = self.find_solution()
+                if solution[1] > 0:
+                    solutions.append(solution)
+                    self.check_solution(solution)
             self.update_pheromone(solutions)
             print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
                   "\t"+str(self.graph.optimal_value))
