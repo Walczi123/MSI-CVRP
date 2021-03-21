@@ -1,5 +1,6 @@
 from graph import Graph
 import numpy as np
+import math
 import copy
 
 
@@ -97,19 +98,56 @@ class ACO:
             solutions = []
             for _ in range(self.n_ants):
                 solution = self.find_solution()
-                print("colution for ant", solution[0],solution[1])
                 if solution[1] > 0:
                     solutions.append(solution)
                     self.check_solution(solution)
             self.update_pheromone(solutions)
-            # print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
-            #       "\t"+str(self.graph.optimal_value))
+            print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
+                  "\t"+str(self.graph.optimal_value))
+        print("best_solution", self.best_solution[0])
         return self.best_solution
 
 
+
+
+
+class ACO_MinMax(ACO):
+
+    def __init__(self, t_max = 5, **args):
+        super().__init__(**args)
+        self.k_ = ((self.n_ants -2) * (0.05 ** (1/float(self.n_ants)))) / 2*(1- (0.05 ** (1/float(self.n_ants))))
+        self.t_max = t_max                                # tau max parameter
+        # self.t_min = t_max/self.k_                        # tau min parameter
+        self.t_min = 0.055
+
+    def update_pheromone(self, solutions):
+        coeffs = {e: 0 for (e, v) in self.graph.pheromones().items()}
+        solution = self.best_solution
+        for path in (solution[0]):
+            for i in range(len(path)-1):
+                e = (min(path[i], path[i+1]),
+                        max(path[i], path[i+1]))
+                coeffs[e] += (self.th/solution[1])
+        
+        self.graph.set_pheromones(
+            {e: min(max(((1-self.ro) * v) + coeffs[e], self.t_min), self.t_max)
+                for (e, v) in self.graph.pheromones().items()})
+
+
+
+
 if __name__ == "__main__":
+    t_max = 5
     g = Graph()
-    g.generateGraph("E-n22-k4.txt")
-    aco = ACO(graph=g, cars_limit=16, capacity_limit=g.capacity_limit, distance_limit=100, iterations=1000)
-    # aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit, iterations=1000)
+    g.generateGraph("E-n22-k4.txt", pheromones_start = t_max)
+    aco = ACO_MinMax(t_max = 5, graph=g, cars_limit=5, capacity_limit=g.capacity_limit, distance_limit=1000, iterations=1000)
+    # aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit, distance_limit=1000, iterations=1000)
     solution = aco.run()
+
+# minMax:
+# 1000:   376     375
+# best_solution [[9, 7, 2, 3, 6, 8, 10], [14, 12, 5, 4, 11], [13, 16, 19, 21, 18], [17, 20, 22, 15]] dopiero w 974 iteracji
+
+# zwykłe:
+# 1000:   378     375
+# best_solution [[9, 7, 2, 3, 6, 8, 10], [18, 21, 19, 16, 13], [22, 20, 17, 15], [11, 4, 5, 12, 14]]
