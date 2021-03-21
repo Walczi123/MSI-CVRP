@@ -5,11 +5,12 @@ import copy
 
 class ACO:
     def __init__(self, iterations=1000, n_ants=25, graph=Graph(),
-                 capacity_limit=6000, distance_limit=1000, seed=None,
+                 cars_limit =6, capacity_limit=6000, distance_limit=1000,  seed=None,
                  alfa=2, beta=5, ro=0.2, th=80):  # seed=12023050
         self.iterations = iterations                # amount of iterations
         self.n_ants = n_ants                        # number of ants
         self.graph = copy.deepcopy(graph)           # graph information
+        self.cars_limit = cars_limit                # cars limit
         self.capacity_limit = capacity_limit        # capacity limit
         self.distance_limit = distance_limit        # distance limit
         self.best_solution = None                   # best solutionalfa
@@ -23,10 +24,13 @@ class ACO:
     def find_solution(self):
         solution = list()
         vertices = copy.deepcopy(self.graph.vertices)
-        while(len(vertices) != 0):
+        cars_used = 0
+        rate = 0
+        while(len(vertices) != 0 and cars_used < self.cars_limit):
             path = list()
             vertex = np.random.choice(vertices)
             capacity = self.capacity_limit - self.graph.demand[vertex]
+            distance =  self.graph.edges(1, vertex)
             path.append(vertex)
             vertices.remove(vertex)
             while(len(vertices) != 0):
@@ -40,13 +44,24 @@ class ACO:
                     probabilities = probabilities/np.sum(probabilities)
                     vertex = np.random.choice(vertices, p=probabilities)
                 capacity = capacity - self.graph.demand[vertex]
-                if(capacity > 0):
+
+                a = path[len(path)-1]
+
+                if((capacity > 0) and 
+                    (distance + self.graph.edges(min(a, vertex), max(a, vertex)) + self.graph.edges(1, vertex) <= self.distance_limit)):
                     path.append(vertex)
                     vertices.remove(vertex)
+                    distance += self.graph.edges(min(a, vertex), max(a, vertex))
                 else:
                     break
+
             solution.append(path)
-        return solution, self.rate_solution(solution)
+            cars_used += 1
+            distance += self.graph.edges(1, path[len(path)-1])
+            rate += distance
+        if (cars_used  > self.cars_limit or len(vertices)>0): 
+            return solution, -1
+        return solution, rate
 
     def rate_solution(self, solution):
         s = 0
@@ -82,17 +97,19 @@ class ACO:
             solutions = []
             for _ in range(self.n_ants):
                 solution = self.find_solution()
+                print("colution for ant", solution[0],solution[1])
                 if solution[1] > 0:
                     solutions.append(solution)
                     self.check_solution(solution)
             self.update_pheromone(solutions)
-            print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
-                  "\t"+str(self.graph.optimal_value))
+            # print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
+            #       "\t"+str(self.graph.optimal_value))
         return self.best_solution
 
 
 if __name__ == "__main__":
     g = Graph()
     g.generateGraph("E-n22-k4.txt")
-    aco = ACO(graph=g, capacity_limit=g.capacity_limit, iterations=1000)
+    aco = ACO(graph=g, cars_limit=16, capacity_limit=g.capacity_limit, distance_limit=100, iterations=1000)
+    # aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit, iterations=1000)
     solution = aco.run()
