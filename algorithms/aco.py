@@ -1,20 +1,18 @@
-from graph import Graph
+from data.graph import Graph
 import numpy as np
-import math
 import copy
 
 
 class ACO:
     def __init__(self, iterations=1000, n_ants=25, graph=Graph(),
-                 cars_limit =6, capacity_limit=6000, distance_limit=1000,  seed=None,
-                 alfa=2, beta=5, ro=0.2, th=80):  # seed=12023050
+                 capacity_limit=6000, distance_limit=1000, seed=None,
+                 alfa=2, beta=5, ro=0.2, th=80):    # seed=12023050
         self.iterations = iterations                # amount of iterations
         self.n_ants = n_ants                        # number of ants
         self.graph = copy.deepcopy(graph)           # graph information
-        self.cars_limit = cars_limit                # cars limit
         self.capacity_limit = capacity_limit        # capacity limit
         self.distance_limit = distance_limit        # distance limit
-        self.best_solution = None                   # best solutionalfa
+        self.best_solution = None                   # best solution
         self.alfa = alfa                            # alfa parameter
         self.beta = beta                            # beta parameter
         self.ro = ro                                # ro parameter
@@ -25,13 +23,10 @@ class ACO:
     def find_solution(self):
         solution = list()
         vertices = copy.deepcopy(self.graph.vertices)
-        cars_used = 0
-        rate = 0
-        while(len(vertices) != 0 and cars_used < self.cars_limit):
+        while(len(vertices) != 0):
             path = list()
             vertex = np.random.choice(vertices)
             capacity = self.capacity_limit - self.graph.demand[vertex]
-            distance =  self.graph.edges(1, vertex)
             path.append(vertex)
             vertices.remove(vertex)
             while(len(vertices) != 0):
@@ -45,24 +40,13 @@ class ACO:
                     probabilities = probabilities/np.sum(probabilities)
                     vertex = np.random.choice(vertices, p=probabilities)
                 capacity = capacity - self.graph.demand[vertex]
-
-                a = path[len(path)-1]
-
-                if((capacity > 0) and 
-                    (distance + self.graph.edges(min(a, vertex), max(a, vertex)) + self.graph.edges(1, vertex) <= self.distance_limit)):
+                if(capacity > 0):
                     path.append(vertex)
                     vertices.remove(vertex)
-                    distance += self.graph.edges(min(a, vertex), max(a, vertex))
                 else:
                     break
-
             solution.append(path)
-            cars_used += 1
-            distance += self.graph.edges(1, path[len(path)-1])
-            rate += distance
-        if (cars_used  > self.cars_limit or len(vertices)>0): 
-            return solution, -1
-        return solution, rate
+        return solution, self.rate_solution(solution)
 
     def rate_solution(self, solution):
         s = 0
@@ -104,25 +88,16 @@ class ACO:
             self.update_pheromone(solutions)
             print(str(i+1)+":\t"+str(int(self.best_solution[1])) +
                   "\t"+str(self.graph.optimal_value))
+            yield(str(i+1)+":\t"+str(int(self.best_solution[1])) +
+                  "\t"+str(self.graph.optimal_value))
         print("best_solution", self.best_solution[0])
-        return self.best_solution
-
-
-
+        yield str(self.best_solution)
 
 
 if __name__ == "__main__":
-    t_max = 5
     g = Graph()
     g.generateGraph("E-n22-k4.txt")
     # aco = ACO_MinMax(t_max = 5, graph=g, cars_limit=5, capacity_limit=g.capacity_limit, distance_limit=1000, iterations=1000)
-    aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit, distance_limit=1000, iterations=1000)
+    aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit,
+              distance_limit=1000, iterations=1000)
     solution = aco.run()
-
-# minMax:
-# 1000:   376     375
-# best_solution [[9, 7, 2, 3, 6, 8, 10], [14, 12, 5, 4, 11], [13, 16, 19, 21, 18], [17, 20, 22, 15]] dopiero w 974 iteracji
-
-# zwykłe:
-# 1000:   378     375
-# best_solution [[9, 7, 2, 3, 6, 8, 10], [18, 21, 19, 16, 13], [22, 20, 17, 15], [11, 4, 5, 12, 14]]
