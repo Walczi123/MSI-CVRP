@@ -44,14 +44,14 @@ class Graph:
         self.optimal_value = int(self.optimal_value)
         return graph
 
-    def generateGraph(self, fileName):
+    def generateGraph(self, fileName, pheromones_start=1):
         graph = self.getData(fileName)
         self.vertices = list(graph.keys())
         self.vertices.remove(1)
 
         self.__edges__ = {(min(a, b), max(a, b)): np.sqrt((graph[a][0]-graph[b][0])**2 + (
             graph[a][1]-graph[b][1])**2) for a in graph.keys() for b in graph.keys()}
-        self.__pheromones__ = {(min(a, b), max(a, b)): 1 for a in graph.keys()
+        self.__pheromones__ = {(min(a, b), max(a, b)): pheromones_start for a in graph.keys()
                                for b in graph.keys() if a != b}
 
         return self.vertices, self.__edges__, self.capacity_limit, self.demand, \
