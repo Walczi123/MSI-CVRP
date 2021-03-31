@@ -44,7 +44,7 @@ class Graph:
         self.optimal_value = int(self.optimal_value)
         return graph
 
-    def generateGraph(self, fileName, pheromones_start= 1):
+    def generateGraph(self, fileName, pheromones_start=1):
         graph = self.getData(fileName)
         self.vertices = list(graph.keys())
         self.vertices.remove(1)
