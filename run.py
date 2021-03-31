@@ -1,39 +1,83 @@
+import os
 from algorithms.aco_MinMax import ACO_MinMax
 from algorithms.aco_Elite import ACO_Elite
 from data.tests import Tests
 from data.graph import Graph
 from algorithms.aco import ACO
+import glob
+
+ADDITIONALCARS = 2
+DISTANCELIMIT = 1000
+ITERATIONS = 10000  # 10000
+NREPETITIONS = 30  # 30
+NELITE = 3  # 3
+SEED = 12020323  # 12020323
+TMAX = 5  # 5
 
 
-g1 = Graph()
-g1.generateGraph("E-n22-k4.txt")
-aco = ACO(graph=g1, cars_limit=5, capacity_limit=g1.capacity_limit,
-          distance_limit=1000, iterations=100)
-T_aco = Tests(instance=aco, n_repetition=10, name="aco_1", seed=12020323,
-              graph=g1)
-T_aco.start()
-# aco.start()
+# ACO
+aco = ACO(distance_limit=DISTANCELIMIT,
+          iterations=ITERATIONS)
+aco_name = "aco"
+T_aco = Tests(instance=aco, n_repetition=NREPETITIONS,
+              name=aco_name, seed=SEED)
+
+# ACO_MINMAX
+aco_minmax = ACO_MinMax(
+    t_max=TMAX, distance_limit=DISTANCELIMIT, iterations=ITERATIONS)
+aco_minmax_name = "aco_minmax"
+T_aco_minmax = Tests(instance=aco_minmax, n_repetition=NREPETITIONS,
+                     name=aco_minmax_name, seed=SEED)
+
+# ACO_ELITE
+aco_elite = ACO_Elite(
+    n_elite=NELITE, distance_limit=DISTANCELIMIT, iterations=ITERATIONS)
+aco_elite_name = "aco_elite"
+T_aco_elite = Tests(instance=aco_elite, n_repetition=NREPETITIONS,
+                    name=aco_elite_name, seed=SEED)
+
+# ACO_GREEDY
+aco_greedy = ACO(distance_limit=DISTANCELIMIT,
+                 iterations=ITERATIONS, alfa=0)
+aco_greedy_name = "aco_greedy"
+T_aco_greedy = Tests(instance=aco_greedy, n_repetition=NREPETITIONS,
+                     name=aco_greedy_name, seed=SEED)
 
 
-g2 = Graph()
-g2.generateGraph("E-n22-k4.txt", pheromones_start=5)
-aco_minmax = ACO_MinMax(t_max=5, graph=g2, cars_limit=5,
-                        capacity_limit=g2.capacity_limit, distance_limit=1000,
-                        iterations=1000)
-T_aco_minmax = Tests(instance=aco_minmax, n_repetition=10,
-                     name="aco_minmax_1", seed=12020323,
-                     graph=g2)
-# T_aco_minmax.start()
-# aco_minmax.start()
+for file in glob.glob("./data/Benchmarks/*.vrp"):
+    g = Graph()
+    g.generateGraph(file)
 
+    # ACO
+    aco.capacity_limit = g.capacity_limit
+    aco.cars_limit = g.car_min + ADDITIONALCARS
+    T_aco.name = os.path.splitext(os.path.basename(file))[0] + "_" + aco_name
+    T_aco.base_graph = g
+    print(T_aco.name)
+    # T_aco.start()
 
-g3 = Graph()
-g3.generateGraph("E-n22-k4.txt")
-aco_elite = ACO_Elite(n_elite=5, graph=g3, cars_limit=6,
-                      capacity_limit=g3.capacity_limit, distance_limit=1000,
-                      iterations=1000)
-T_aco_elite = Tests(instance=aco_elite, n_repetition=10,
-                    name="aco_elite_1", seed=12020323,
-                    graph=g3)
-# T_aco_elite.start()
-# aco_elite.start()
+    # ACO_GREEDY
+    aco_greedy.capacity_limit = g.capacity_limit
+    T_aco_greedy.name = os.path.splitext(os.path.basename(file))[
+        0] + "_" + aco_greedy_name
+    T_aco_greedy.base_graph = g
+    print(T_aco_greedy.name)
+    # T_aco.start()
+
+    # ACO_ELITE
+    aco_elite.capacity_limit = g.capacity_limit
+    T_aco_elite.base_graph = g
+    T_aco_elite.name = os.path.splitext(os.path.basename(file))[
+        0] + "_" + aco_elite_name
+    print(T_aco_elite.name)
+    # T_aco_elite.start()
+
+    # ACO_MINMAX
+    g2 = Graph()
+    g2.generateGraph(file, pheromones_start=TMAX)
+    aco_minmax.capacity_limit = g.capacity_limit
+    T_aco_minmax.base_graph = g
+    T_aco_minmax.name = os.path.splitext(os.path.basename(file))[
+        0] + "_" + aco_minmax_name
+    print(T_aco_minmax.name)
+    # T_aco_minmax.start()

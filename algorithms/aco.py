@@ -10,7 +10,7 @@ class ACO:
         self.iterations = iterations                # amount of iterations
         self.n_ants = n_ants                        # number of ants
         self.graph = copy.deepcopy(graph)           # graph information
-        self.cars_limit = cars_limit                # cars limit
+        self.cars_limit = g.car_min                 # cars limit
         self.capacity_limit = capacity_limit        # capacity limit
         self.distance_limit = distance_limit        # distance limit
         self.best_solution = None                   # best solutionalfa
