@@ -10,6 +10,7 @@ class Graph:
         self.__pheromones__ = None
         self.capacity_limit = None
         self.optimal_value = None
+        self.car_min = None
 
     def pheromones(self, x=None, y=None):
         if x is None and y is None:
@@ -34,6 +35,15 @@ class Graph:
                 "Best value: (\d+)", content, re.MULTILINE)
             if(self.optimal_value is not None):
                 self.optimal_value = self.optimal_value.group(1)
+
+        self.car_min = re.search("Min no of trucks: (\d+)", content, re.MULTILINE)
+        if(self.car_min is not None):
+            self.car_min = self.car_min.group(1)
+        else: 
+            self.car_min = re.search("No of trucks: (\d+)", content, re.MULTILINE)
+            if(self.car_min is not None):
+                self.car_min = self.car_min.group(1)
+
         self.capacity_limit = re.search("^CAPACITY : (\d+)$",
                                         content, re.MULTILINE).group(1)
         graph = re.findall(r"^(\d+) (\d+) (\d+)$", content, re.MULTILINE)
