@@ -52,6 +52,7 @@ class Graph:
         self.demand = {int(a): int(b) for a, b in self.demand}
         self.capacity_limit = int(self.capacity_limit)
         self.optimal_value = int(self.optimal_value)
+        self.car_min = int(self.car_min)
         return graph
 
     def generateGraph(self, fileName, pheromones_start=1):

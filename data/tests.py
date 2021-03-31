@@ -28,7 +28,7 @@ class Tests:
                 "\t"+str(best_result[1]) +
                 "\t"+str(best_result[2]) +
                 "\t"+str(best_result[3])+'\n\n')
-        f.write("iteration"+"\t"+"path" +
+        f.write("iteration"+"\t"+"paths" +
                 "\t"+"result" +
                 "\t"+"hipotesis 1" +
                 "\t" + "hipotesis 2"+'\n')
