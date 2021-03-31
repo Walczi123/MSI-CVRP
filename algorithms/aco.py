@@ -10,7 +10,7 @@ class ACO:
         self.iterations = iterations                # amount of iterations
         self.n_ants = n_ants                        # number of ants
         self.graph = copy.deepcopy(graph)           # graph information
-        self.cars_limit = cars_limit                # cars limit
+        self.cars_limit = 15                        # cars limit
         self.capacity_limit = capacity_limit        # capacity limit
         self.distance_limit = distance_limit        # distance limit
         self.best_solution = None                   # best solutionalfa
@@ -120,6 +120,14 @@ class ACO:
             {e: ((1-self.ro)*v) + coeffs[e]
                 for (e, v) in self.graph.pheromones().items()})
 
+    def add_to_result(self, result: list, iteration, r):
+        if len(result) == 0:
+            result.append((iteration, r))
+        else:
+            _, last = result[-1]
+            if last[1] != r[1] or last[2] != r[2] or last[3] != r[3]:
+                result.append((iteration, r))
+
     def run(self):
         result = list()
         for i in range(self.iterations):
@@ -136,24 +144,15 @@ class ACO:
                   "\t"+str(self.graph.optimal_value) +
                   "\t"+str(self.best_solution[2]) +
                   "\t"+str(self.best_solution[3]))
-            result.append((i+1, self.best_solution))
-            # result.append(str(i+1)+"\t"+str(self.best_solution[0]) +
-            #               "\t"+str(self.best_solution[1]) +
-            #               "\t"+str(self.best_solution[2]) +
-            #               "\t"+str(self.best_solution[3])+'\n')
+            self.add_to_result(result=result, iteration=i +
+                               1, r=self.best_solution)
+            # result.append((i+1, self.best_solution))
         print("best solution "+str(self.best_solution))
         result.append(self.best_solution)
-        # result.append("Best Solution:"+"\t"+str(self.best_solution[0]) +
-        #               "\t"+str(self.best_solution[1]) +
-        #               "\t"+str(self.best_solution[2]) +
-        #               "\t"+str(self.best_solution[3])+'\n')
         result.append(self.graph.optimal_value)
-        # result.append('Optimal solution '+str(self.graph.optimal_value)+'\n')
         return result
 
     def start(self):
-        # for result in self.run():
-        #     print(result)
         self.run()
 
 
