@@ -1,23 +1,20 @@
 import numpy as np
 
 
-class Tests:
-    def __init__(self,  instance, graph=None, n_repetition=1, name="test", seed=None):
-        self.n_repetition = n_repetition
+class Test:
+    def __init__(self,  instance, graph=None, name="test", seed=None):
         self.instance = instance
         self.base_graph = graph
         self.name = name
         self.seed = seed
 
     def start(self):
-        for i in range(self.n_repetition):
-            if self.seed is not None:
-                self.seed = self.seed + 1
-                np.random.seed(self.seed)
-            self.instance.reset(self.base_graph)
-            results = self.instance.run()
-            self.save_to_file(results, "results/" +
-                              self.name + "_" + str(self.instance.iterations) + "_" + str(self.seed) + ".txt")
+        if self.seed is not None:
+            np.random.seed(self.seed)
+        self.instance.reset(self.base_graph)
+        results = self.instance.run()
+        self.save_to_file(results, "results/" +
+                          self.name + "_" + str(self.instance.iterations) + "_" + str(self.seed) + ".txt")
 
     def save_to_file(self, results, file_path):
         f = open(file_path, "w")

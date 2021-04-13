@@ -5,12 +5,12 @@ import copy
 
 class ACO:
     def __init__(self, iterations=1000, n_ants=25, graph=Graph(),
-                 cars_limit=6, capacity_limit=6000, distance_limit=1000, seed=None,
+                 cars_limit=15, capacity_limit=6000, distance_limit=1000, seed=None,
                  alfa=2, beta=5, ro=0.2, th=80):  # seed=12023050
         self.iterations = iterations                # amount of iterations
         self.n_ants = n_ants                        # number of ants
         self.graph = copy.deepcopy(graph)           # graph information
-        self.cars_limit = 15                        # cars limit
+        self.cars_limit = cars_limit                # cars limit
         self.capacity_limit = capacity_limit        # capacity limit
         self.distance_limit = distance_limit        # distance limit
         self.best_solution = None                   # best solutionalfa
@@ -156,9 +156,29 @@ class ACO:
         self.run()
 
 
+NANTS = 25
+ADDITIONALCARS = 2
+DISTANCELIMIT = 1000
+ITERATIONS = 10  # 10000
+NREPETITIONS = 2  # 30
+NELITE = 3  # 3
+SEED = 12020322  # 12020323
+TMAX = 5  # 5
+
 if __name__ == "__main__":
+    # g = Graph()
+    # g.generateGraph("M-n101-k10.vrp")
+    # aco = ACO(graph=g, cars_limit=g.car_min+2, capacity_limit=g.capacity_limit,
+    #           distance_limit=1000, iterations=10)
+    # aco.start()
+
+    # ACO
     g = Graph()
-    g.generateGraph("E-n22-k4.txt")
-    aco = ACO(graph=g, cars_limit=5, capacity_limit=g.capacity_limit,
-              distance_limit=1000, iterations=100)
+    g.generateGraph("M-n101-k10.vrp")
+    aco = ACO(distance_limit=DISTANCELIMIT,
+              iterations=ITERATIONS, n_ants=NANTS)
+    aco_name = "aco"
+    aco.capacity_limit = g.capacity_limit
+    aco.cars_limit = g.car_min + ADDITIONALCARS
+    aco.reset(g)
     aco.start()

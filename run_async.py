@@ -4,7 +4,8 @@ from algorithms.aco_Elite import ACO_Elite
 from data.tests import Tests
 from data.graph import Graph
 from algorithms.aco import ACO
-import glob
+import multiprocessing
+from glob import glob
 import time
 
 NANTS = 25
@@ -13,7 +14,7 @@ DISTANCELIMIT = 1000
 ITERATIONS = 8000  # 10000
 NREPETITIONS = 2  # 30
 NELITE = 3  # 3
-SEED = 12020323  # 12020323
+SEED = 12020322  # 12020323
 TMAX = 5  # 5
 
 
@@ -45,8 +46,50 @@ aco_greedy_name = "aco_greedy"
 T_aco_greedy = Tests(instance=aco_greedy, n_repetition=NREPETITIONS,
                      name=aco_greedy_name, seed=SEED)
 
-start_time = time.time()
-for file in glob.glob("./data/Benchmarks/*.vrp"):
+# start_time = time.time()
+# for file in glob.glob("./data/Benchmarks/*.vrp"):
+#     g = Graph()
+#     g.generateGraph(file)
+
+#     # ACO
+#     aco.capacity_limit = g.capacity_limit
+#     aco.cars_limit = g.car_min + ADDITIONALCARS
+#     T_aco.name = os.path.splitext(os.path.basename(file))[0] + "_" + aco_name
+#     T_aco.base_graph = g
+#     print(T_aco.name)
+#     T_aco.start()
+
+#     # ACO_GREEDY
+#     aco_greedy.capacity_limit = g.capacity_limit
+#     T_aco_greedy.name = os.path.splitext(os.path.basename(file))[
+#         0] + "_" + aco_greedy_name
+#     T_aco_greedy.base_graph = g
+#     print(T_aco_greedy.name)
+#     T_aco_greedy.start()
+
+#     # ACO_ELITE
+#     aco_elite.capacity_limit = g.capacity_limit
+#     T_aco_elite.base_graph = g
+#     T_aco_elite.name = os.path.splitext(os.path.basename(file))[
+#         0] + "_" + aco_elite_name
+#     print(T_aco_elite.name)
+#     T_aco_elite.start()
+
+#     # ACO_MINMAX
+#     g2 = Graph()
+#     g2.generateGraph(file, pheromones_start=TMAX)
+#     aco_minmax.capacity_limit = g.capacity_limit
+#     T_aco_minmax.base_graph = g
+#     T_aco_minmax.name = os.path.splitext(os.path.basename(file))[
+#         0] + "_" + aco_minmax_name
+#     print(T_aco_minmax.name)
+#     T_aco_minmax.start()
+
+# print("--- %s seconds ---" % (time.time() - start_time))
+
+
+def foreachfile(file):
+    print(file)
     g = Graph()
     g.generateGraph(file)
 
@@ -60,6 +103,7 @@ for file in glob.glob("./data/Benchmarks/*.vrp"):
 
     # ACO_GREEDY
     aco_greedy.capacity_limit = g.capacity_limit
+    aco_greedy.cars_limit = g.car_min + ADDITIONALCARS
     T_aco_greedy.name = os.path.splitext(os.path.basename(file))[
         0] + "_" + aco_greedy_name
     T_aco_greedy.base_graph = g
@@ -68,6 +112,7 @@ for file in glob.glob("./data/Benchmarks/*.vrp"):
 
     # ACO_ELITE
     aco_elite.capacity_limit = g.capacity_limit
+    aco_elite.cars_limit = g.car_min + ADDITIONALCARS
     T_aco_elite.base_graph = g
     T_aco_elite.name = os.path.splitext(os.path.basename(file))[
         0] + "_" + aco_elite_name
@@ -78,10 +123,25 @@ for file in glob.glob("./data/Benchmarks/*.vrp"):
     g2 = Graph()
     g2.generateGraph(file, pheromones_start=TMAX)
     aco_minmax.capacity_limit = g.capacity_limit
+    aco_minmax.cars_limit = g.car_min + ADDITIONALCARS
     T_aco_minmax.base_graph = g
     T_aco_minmax.name = os.path.splitext(os.path.basename(file))[
         0] + "_" + aco_minmax_name
     print(T_aco_minmax.name)
     T_aco_minmax.start()
 
-print("--- %s seconds ---" % (time.time() - start_time))
+
+def run_tests():
+    iterable = [file for file in glob("./data/Benchmarks/*.vrp")]
+    start_time = time.time()
+
+    p = multiprocessing.Pool()
+    p.map_async(foreachfile, iterable)
+
+    p.close()
+    p.join()
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+
+if __name__ == '__main__':
+    run_tests()

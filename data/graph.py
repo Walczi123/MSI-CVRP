@@ -36,11 +36,13 @@ class Graph:
             if(self.optimal_value is not None):
                 self.optimal_value = self.optimal_value.group(1)
 
-        self.car_min = re.search("Min no of trucks: (\d+)", content, re.MULTILINE)
+        self.car_min = re.search(
+            "Min no of trucks: (\d+)", content, re.MULTILINE)
         if(self.car_min is not None):
             self.car_min = self.car_min.group(1)
-        else: 
-            self.car_min = re.search("No of trucks: (\d+)", content, re.MULTILINE)
+        else:
+            self.car_min = re.search(
+                "No of trucks: (\d+)", content, re.MULTILINE)
             if(self.car_min is not None):
                 self.car_min = self.car_min.group(1)
 
@@ -55,13 +57,18 @@ class Graph:
         self.car_min = int(self.car_min)
         return graph
 
+    def check_zero(self, x):
+        if x > 0:
+            return x
+        return 0.000000000000000001
+
     def generateGraph(self, fileName, pheromones_start=1):
         graph = self.getData(fileName)
         self.vertices = list(graph.keys())
         self.vertices.remove(1)
 
-        self.__edges__ = {(min(a, b), max(a, b)): np.sqrt((graph[a][0]-graph[b][0])**2 + (
-            graph[a][1]-graph[b][1])**2) for a in graph.keys() for b in graph.keys()}
+        self.__edges__ = {(min(a, b), max(a, b)): self.check_zero(np.sqrt((graph[a][0]-graph[b][0])**2 + (
+            graph[a][1]-graph[b][1])**2)) for a in graph.keys() for b in graph.keys()}
         self.__pheromones__ = {(min(a, b), max(a, b)): pheromones_start for a in graph.keys()
                                for b in graph.keys() if a != b}
 
